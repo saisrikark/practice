@@ -37,30 +37,38 @@ func TestTrieTree(t *testing.T) {
 	}
 
 	// test word search
-	randomWord := words[rand.Intn(len(words))]
-	found, _, err := tt.Search(randomWord)
-	if err != nil {
-		t.Errorf("error while trying to find word %s", err.Error())
-	} else if !found {
-		t.Errorf("unable to find word")
-	}
+	for i := 0; i < 1000; i++ {
+		randomWord := words[rand.Intn(len(words))]
 
-	// test word completions
-	prefix := words[rand.Intn(len(words))]
-	bruteForceCompletions := []string{}
-	for _, word := range words {
-		if word != prefix && strings.HasPrefix(word, prefix) {
-			bruteForceCompletions = append(bruteForceCompletions, word)
-		}
-	}
+		t.Run(fmt.Sprintf("test %s", randomWord), func(t *testing.T) {
+			found, err := tt.Search(randomWord)
+			if err != nil {
+				t.Errorf("error while trying to find word %s", err.Error())
+				return
+			} else if !found {
+				t.Errorf("unable to find word")
+				return
+			}
 
-	trieTreeCompletions, err := tt.Completions(prefix)
-	if err != nil {
-		t.Errorf("unable to get completions %s", err.Error())
-		return
-	}
+			// test word completions
+			prefix := words[rand.Intn(len(words))]
+			bruteForceCompletions := []string{}
+			for _, word := range words {
+				if word != prefix && strings.HasPrefix(word, prefix) {
+					bruteForceCompletions = append(bruteForceCompletions, word)
+				}
+			}
 
-	if len(trieTreeCompletions) != len(bruteForceCompletions) {
-		t.Errorf("trieTreeCompletions %d bruteForceCompletions %d prefix %s", len(trieTreeCompletions), len(bruteForceCompletions), prefix)
+			trieTreeCompletions, err := tt.Completions(prefix)
+			if err != nil && err != trie.ErrNoCompletions {
+				t.Errorf("unable to get completions %s", err.Error())
+				return
+			}
+
+			if len(trieTreeCompletions) != len(bruteForceCompletions) {
+				t.Errorf("trieTreeCompletions %d bruteForceCompletions %d prefix %s", len(trieTreeCompletions), len(bruteForceCompletions), prefix)
+				return
+			}
+		})
 	}
 }
