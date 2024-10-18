@@ -1,2 +1,2 @@
-# interview-practice
-Coding for interviews
+# practice
+Cause it matters
